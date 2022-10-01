@@ -1,10 +1,13 @@
 package com.harshit.kotlin_mvvm_retrofit_coroutines.ui.main.view
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.harshit.kotlin_mvvm_retrofit_coroutines.data.api.ApiHelper
@@ -14,15 +17,14 @@ import com.harshit.kotlin_mvvm_retrofit_coroutines.databinding.ActivityMainBindi
 import com.harshit.kotlin_mvvm_retrofit_coroutines.ui.base.ViewModelFactory
 import com.harshit.kotlin_mvvm_retrofit_coroutines.ui.main.adapter.MainAdapter
 import com.harshit.kotlin_mvvm_retrofit_coroutines.ui.main.viewmodel.MainViewModel
-import com.harshit.kotlin_mvvm_retrofit_coroutines.utils.Status.ERROR
-import com.harshit.kotlin_mvvm_retrofit_coroutines.utils.Status.LOADING
-import com.harshit.kotlin_mvvm_retrofit_coroutines.utils.Status.SUCCESS
+import com.harshit.kotlin_mvvm_retrofit_coroutines.utils.Status.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: MainAdapter
+    private val TAG: String = MainActivity::class.java.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +46,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUI() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = MainAdapter(arrayListOf())
+        adapter = MainAdapter(arrayListOf(),MainAdapter.OnClickListener { user ->
+            //Toast.makeText(applicationContext, "${user.name}", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this@MainActivity,ProfileActivity::class.java)
+            intent.putExtra("id",user.id)
+            startActivity(intent)
+        })
         binding.recyclerView.addItemDecoration(
             DividerItemDecoration(
                 binding.recyclerView.context,
@@ -66,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                     ERROR -> {
                         binding.recyclerView.visibility = View.VISIBLE
                         binding.progressBar.visibility = View.GONE
+                        Log.e(TAG, "Error-> " + it.message)
                         Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                     }
                     LOADING -> {

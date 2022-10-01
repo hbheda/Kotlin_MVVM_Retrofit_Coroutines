@@ -7,17 +7,19 @@ import com.bumptech.glide.Glide
 import com.harshit.kotlin_mvvm_retrofit_coroutines.data.model.User
 import com.harshit.kotlin_mvvm_retrofit_coroutines.databinding.ItemLayoutBinding
 
-class MainAdapter(private val users: ArrayList<User>) : RecyclerView.Adapter<MainAdapter.DataViewHolder>() {
+class MainAdapter(private val users: ArrayList<User>, private val onClickListener: OnClickListener) : RecyclerView.Adapter<MainAdapter.DataViewHolder>() {
 
     class DataViewHolder(itemView: ItemLayoutBinding) : RecyclerView.ViewHolder(itemView.root) {
 
+        private val binding = ItemLayoutBinding.bind(itemView.root)
+
         fun bind(user: User) {
             itemView.apply {
-                itemView.textViewUserName.text = user.name
+                binding.textViewUserName.text = user.name
                 binding.textViewUserEmail.text = user.email
-                Glide.with(imageViewAvatar.context)
-                    .load(user.avatar)
-                    .into(imageViewAvatar)
+                Glide.with(binding.imageViewPhoto.context)
+                    .load(user.photo)
+                    .into(binding.imageViewPhoto)
             }
         }
     }
@@ -30,6 +32,13 @@ class MainAdapter(private val users: ArrayList<User>) : RecyclerView.Adapter<Mai
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
         holder.bind(users[position])
+        holder.itemView.setOnClickListener {
+            onClickListener.onClick(users[position])
+        }
+    }
+
+    class OnClickListener(val clickListener: (user: User) -> Unit) {
+        fun onClick(user: User) = clickListener(user)
     }
 
     fun addUsers(users: List<User>) {
